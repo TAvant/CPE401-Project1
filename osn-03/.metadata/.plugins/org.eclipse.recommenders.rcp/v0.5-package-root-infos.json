@@ -1,0 +1,184 @@
+[
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "c2691ddd9c740384c1b047e2b171522085173333",
+    "jarFileModificationDate": "2014-01-16T10:42:02-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext/localedata.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "6ef3263320174e42bc4bf6da6e3ffa5858d0cd10",
+    "jarFileModificationDate": "2014-01-16T10:31:04-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext/pulse-java.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "120485da440c44201965385a38f210b58004878f",
+    "jarFileModificationDate": "2014-01-16T10:41:48-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext/dnsns.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "com.google.guava",
+    "version": {
+      "major": 16,
+      "minor": 0,
+      "micro": 1,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "5fa98cd1a63c99a44dd8d3b77e4762b066a5d0c5",
+    "jarFileModificationDate": "2014-03-30T18:04:55-07:00",
+    "location": "/home/avant/Documents/networking/osn-03/java-client/lib/guava-16.0.1.jar",
+    "javaRuntime": false
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "e3a94f88caa1024236316fe326f96616a10025fd",
+    "jarFileModificationDate": "2014-01-16T10:48:05-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rhino.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "4af65b0e4eace28a175c8340e9b9507950e54c0a",
+    "jarFileModificationDate": "2014-01-16T10:44:33-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext/zipfs.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "a0dfd01d81ebc2edfa974c9334e84bf1c2760db3",
+    "jarFileModificationDate": "2014-01-16T10:48:05-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/resources.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "8fd8ffc9a75cc7f657cdec5affdcb7f459d58c8d",
+    "jarFileModificationDate": "2014-01-16T10:48:05-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "fa100a5a9205dd06668193658e5ebef94a6677aa",
+    "jarFileModificationDate": "2014-01-16T10:48:05-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jsse.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "97653eb5b4474af9b45be45827d390f82cbd2b98",
+    "jarFileModificationDate": "2014-01-16T10:41:36-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext/sunpkcs11.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "c0ccad4a3861a7d720af8b7b1e1ca016d3dfe378",
+    "jarFileModificationDate": "2014-01-16T10:41:58-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/charsets.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "731fa7bcc33db5a95623a3e0df7df2ac9ff47c4c",
+    "jarFileModificationDate": "2014-01-16T10:41:17-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jce.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "1090175837308811bb8bb8907f7ff90533a1cc2a",
+    "jarFileModificationDate": "2012-01-22T15:44:05-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext/java-atk-wrapper.jar",
+    "javaRuntime": true
+  },
+  {
+    "symbolicName": "jre",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "micro": 0,
+      "qualifier": ""
+    },
+    "jarFileFingerprint": "e51dec70db7aa9e93283010d40090f8796bd1281",
+    "jarFileModificationDate": "2014-01-16T10:43:45-08:00",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext/sunjce_provider.jar",
+    "javaRuntime": true
+  }
+]

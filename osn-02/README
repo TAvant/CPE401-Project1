@@ -1,0 +1,53 @@
+contents:
+=========
+client.py: this is the main client program. This program interacts with the 
+server and other clients. The file it self is well documented throughout. 
+
+server.py: this is the main server program. This program keeps track of where 
+clients can be reached. The server accecpts queries from clients and returns 
+the results. This file is also well documented throughout. 
+
+packages: this directory holds addition files for supporting modules and classes
+
+    __init__.py: this file is necessary for the python directory struture 
+    to know that there are file to be executed within
+
+    client_thread.py: this thread handels all incoming requests/responses 
+    from other clients. The file has been well documented throughout.
+
+    server_thread.py: this thread handels individual clients of the server 
+    for server database queries. The file has been well documented throughout.
+
+    tcp_socket.py: this is the tcp socket class for initializing and reading 
+    and writing to a tcp socket. The file has been well documented throughout.
+
+data: this directory is created by the program and is used to output and 
+retreive client data suche as friends, the clients wall posts, etc.
+
+running the program:
+====================
+both server.py and client.py have been made into executables. start the server 
+first by:
+
+    ./server.py --auto
+
+Once the server has started, start as many client porgrams as you'd like:
+
+    ./client.py --auto
+
+The client program will ask you to register with the server, example input is
+provided. Once regesitered, a list of valid commands will be displayed:
+
+    Have Fun! =D
+
+Items I want to fix and not completed:
+======================================
+In client_thread.py, line 170: when exiting the program the thread continues
+to listen to the socket for a datagram. I need to create some kind of timer to 
+allow the natural program flow to occur. 
+
+I would have like to do more error checking on user input data. I do a little 
+bit, but not enough. Some incorrect inputs can still crash the program. In 
+addition, better user prompts and displaying of data would have been nice. 
+
+Both the activity and error logs were never created. 

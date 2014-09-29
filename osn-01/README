@@ -1,0 +1,14 @@
+files included:
+mainClient - is the client program
+mainServer - is the server program
+ClientInfo - defines what a client object is
+ClientThread - is the client thread spawned by the server
+Database - is bacialy a list of ClientInfo objects
+TCPSocket - is the socket
+
+todo's and items not completed:
+error check registration info
+need to handel menu functions returning false, to inform client whats wrong
+need to fix getChatCounter, the function is a set and get (i dont like that)
+need to implement an auto refresh for the main menu
+create activity and error logs

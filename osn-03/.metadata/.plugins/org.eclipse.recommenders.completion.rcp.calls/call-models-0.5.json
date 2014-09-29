@@ -1,0 +1,17 @@
+{
+  "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar": {
+    "coordinate": "jre:jre:zip:call:1.0.0",
+    "location": "/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar",
+    "status": "RESOLVED"
+  },
+  "/home/avant/Documents/networking/osn-03/java-client/src": {
+    "location": "/home/avant/Documents/networking/osn-03/java-client/src",
+    "status": "UNRESOLVED",
+    "error": "No class path info available for \u0027/home/avant/Documents/networking/osn-03/java-client/src\u0027. Skipped."
+  },
+  "/home/avant/Documents/networking/osn-03/java-client/lib/guava-16.0.1.jar": {
+    "coordinate": "com.google.guava:com.google.guava:zip:call:10.0.0",
+    "location": "/home/avant/Documents/networking/osn-03/java-client/lib/guava-16.0.1.jar",
+    "status": "RESOLVED"
+  }
+}

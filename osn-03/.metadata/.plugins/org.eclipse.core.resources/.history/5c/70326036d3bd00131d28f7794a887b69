@@ -1,0 +1,265 @@
+package pa03_osn;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.util.Vector;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import com.google.common.base.Joiner;
+
+public class Client {
+	
+	public static void main(String[] args) throws IOException, ParseException, InterruptedException{
+		
+		// create new client data object (user id, first name, last name, ip and port) and lock
+		Client_Data client_data = new Client_Data(args[0], args[1], args[2], args[3], Integer.parseInt(args[4]));
+		ReadWriteLock dataLock = new ReentrantReadWriteLock();
+		
+		// create tcp connection
+		Socket tcpSocket = new Socket("127.0.0.1", 12345);
+		BufferedReader tcpIn = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
+		PrintWriter tcpOut = new PrintWriter(tcpSocket.getOutputStream(), true);
+		
+		// REGISTER with server
+		tcpOut.println(Joiner.on(" ").join(args));
+
+		// create client's udp socket for P2P datagrams
+		DatagramSocket udpSocket = new DatagramSocket(client_data.getPort());
+		byte[] udpIn = new byte[1024];
+		byte[] udpOut = new byte[1024];
+		
+		// extract friends, chats and posts from file
+		client_data.fileImport();
+		
+		// create thread for incoming tcp / udp requests / responses
+		Client_Thread client_thread = new Client_Thread(client_data, dataLock, 
+														tcpSocket, tcpIn, tcpOut, 
+														udpSocket, udpIn, udpOut);
+		Thread t = new Thread(client_thread);
+		t.start();
+
+		// update send HI message to all online friends
+		hi(client_data, dataLock, tcpIn, tcpOut, udpSocket, udpOut);
+		
+		// create buffer reader and print out valid command list
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Enter valid command: SEARCH, FRIEND, CHAT, POST, ENTRIES or QUIT");
+		
+		// create a loop conditional on user input of exit
+		Boolean run = true;
+		while(run){
+			
+			// check if buffer is ready to be read
+			if(in.ready()){
+				
+				// get command and its parameters
+				Vector<String> command = cleanUserInput(in.readLine().trim());
+						
+				// continue if command is valid
+				if(command != null){
+
+					// command is SEARCH
+					if(command.get(0).equalsIgnoreCase("SEARCH"))
+						search(command, tcpIn, tcpOut);
+
+					// command is FRIEND
+					else if(command.get(0) == "FRIEND")
+						friend(command, client_data, dataLock, tcpIn, tcpOut, udpSocket, udpIn, udpOut);
+		
+					// command is CHAT
+					else if(command.get(0) == "CHAT")
+						chat(command, client_data, dataLock, udpSocket, udpOut);
+
+					// command is POST
+					else if(command.get(0) == "POST")
+						post(command, client_data, dataLock);
+		
+					// command is ENTRIES
+					else if(command.get(0) == "ENTRIES")
+						entries(command, client_data, dataLock, udpSocket, udpOut);
+		
+        			// command is QUIT
+					else
+						run = quit(client_data, dataLock, tcpOut, udpSocket, udpOut);
+					
+					// prompt user to enter valid command
+					if(run)
+						System.out.println("Enter valid command: SEARCH, FRIEND, CHAT, POST, ENTRIES or QUIT");
+				}
+				
+				// else let user know they entered an invalid command and prompt to enter valid command
+				else{
+					System.out.println("ERROR: inlalid command entered, try again.");
+					System.out.println("Enter valid command: SEARCH, FRIEND, CHAT, POST, ENTRIES or QUIT");
+				}
+			}
+		}
+		
+		// close tcp and udp sockets
+		tcpSocket.close();
+		udpSocket.close();
+				
+		// send stopping flag to thread wait for it to complete
+		client_thread.setRun(run);
+		t.join(1000);
+		
+		// insert friends, chats and posts to file
+		client_data.fileExport();
+		
+		// let user know program has terminated
+		System.out.println("Client program has been terminated.");
+	}
+
+	private static void hi(Client_Data client_data, ReadWriteLock dataLock, BufferedReader tcpIn, 
+			               PrintWriter tcpOut, DatagramSocket udpSocket, byte[] udpOut) throws IOException{
+		/*
+		 * each online friend will be sent a HI command via udp. 
+		 */
+		
+		// continue if the friends list is not empty
+		if(client_data.hasFriend()){
+			
+			// get the list of friends
+			Vector<String> friends = client_data.getFriends();
+			
+			// send a request to server to update each friend's address and send HI message
+			for(String friend : friends){
+				String friendId = friend.split(" ")[0];
+				tcpOut.println("SEARCH " + friendId);
+				String[] response = tcpIn.readLine().trim().split(" ");
+				if(response[0] != "False")
+					client_data.setFriend(response[0] + " " + response[3] + " " + response[4]);
+					udpOut = ("HI " + client_data.getUserId()).getBytes();
+					udpSocket.send(new DatagramPacket(udpOut, udpOut.length, InetAddress.getByName(response[3]),
+							                                                 Integer.parseInt(response[4])));
+			}
+		}
+	}
+
+	private static Vector<String> cleanUserInput(String input){
+		/*
+		 * identifies what the command is and returns the command and 
+		 * its data as a list. If the command is bad, function returns 
+		 * an empty string for command and empty list for data. 
+		 */
+		
+		// grab first string and match it to a valid command, returning a vector of strings
+		Vector<String> stringVec = new Vector<String>();
+		String command = input.split(" ")[0].toUpperCase();
+		String[] words = input.split(" ");
+
+		// command is [SEARCH keyword] or [FRIEND userId]
+		if((command.equals("SEARCH") || command.equals("FRIEND")) && words.length == 2){
+			stringVec.add(command);
+			stringVec.add(input.split(" ")[1]);
+			return stringVec;
+		}
+
+		// command is [CHAT userId message] 
+		// or [POST code message], where code is: f or ff
+		// or [ENTRIES userId time], where time is: yy.mm.dd hh.mm.ss
+		if((command.equals("CHAT") || command.equals("POST") || command.equals("ENTRIES")) && words.length >= 3){
+			String index1 = input.split(" ")[1];
+			String string = "";
+			for(String word : words){
+				if(word != command && word != index1)
+					string += word + " ";
+			}
+			stringVec.add(command);
+			stringVec.add(index1);
+			stringVec.add(string.trim());
+			return stringVec;
+		}
+
+		// command is QUIT
+		if(command.equals("QUIT")){
+			stringVec.add(command);
+			return stringVec;
+		}
+		
+		// else return null
+		return null;
+	}
+
+	private static void search(Vector<String> command, BufferedReader tcpIn, PrintWriter tcpOut) throws IOException{
+		/*
+		 * sends command SEARCH to the server and waits for the servers response. 
+		 * The results are then printed to the terminal for the user to view. 
+		 */
+
+		tcpOut.println(command.get(0) + " " + command.get(1));
+		System.out.println("Search Results: " + tcpIn.readLine());
+	}
+
+	private static void friend(Vector<String> command, Client_Data client_data, ReadWriteLock dataLock, 
+							   BufferedReader tcpIn, PrintWriter tcpOut, 
+			                   DatagramSocket udpSocket, byte[] udpIn, byte[] udpOut){
+		/*
+		 * sends a datagram to a specified user, 
+		 * based on the data provided, to request friendship.
+		 */
+		
+		// get address of friend from server
+		
+		// send Friend command to potential friend
+	}
+
+	private static void chat(Vector<String> command, Client_Data client_data, ReadWriteLock dataLock, 
+			                 DatagramSocket udpSocket, byte[] udpOut){
+		/*
+		 * sends chat datagram to specified user, based on data provided.
+		 * Chat num sent is updated in chats{key=sentto: value=quantity}.
+		 */
+		
+		// TODO 
+	}
+
+	private static void post(Vector<String> command, Client_Data client_data, ReadWriteLock dataLock){
+		/*
+		 * adds post to dict posts{key=time: val=(F or FF, post)}
+		 */
+		
+		// POST requirement was removed from programming assignment
+		System.out.println("POST requirement was removed from programming assignment.");
+	}
+
+	private static void entries(Vector<String> command, Client_Data client_data, ReadWriteLock dataLock, 
+			                    DatagramSocket udpSocket, byte[] udpOut){
+		/*
+		 * asks for wall posts from a specified time and for 
+		 * friends (F) or friends of friends (FF). A datagram 
+		 * requesting wall posts is sent out to the specified friend. 
+		 * If the request is for friends of friends, that friend 
+		 * will forward the request to their all their friends.
+		 */
+		
+		// ENTRIES requirement was removed from programming assignment
+		System.out.println("ENTRIES requirement was removed from programming assignment.");
+	}
+
+	private static Boolean quit(Client_Data client_data, ReadWriteLock dataLock, PrintWriter tcpOut, 
+			                    DatagramSocket udpSocket, byte[] udpOut) throws NumberFormatException, UnknownHostException, IOException{
+		/*
+		 * sends command QUIT to server and returns false.
+		 */
+		
+		// send server a QUIT command, send friends a BY command and return false
+		tcpOut.println("QUIT");
+		Vector<String> friends = client_data.getFriends();
+		for(String friend : friends){
+			String[] friendInfo = friend.split(" ");
+			udpOut = ("BY " + client_data.getUserId()).getBytes();
+			udpSocket.send(new DatagramPacket(udpOut, udpOut.length, InetAddress.getByName(friendInfo[1]),
+						                                             Integer.parseInt(friendInfo[2])));
+		}
+		return false;
+	}
+}

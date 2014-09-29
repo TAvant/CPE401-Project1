@@ -1,0 +1,57 @@
+contents:
+=========
+Client.java: this is the main client program. This program interacts with the 
+server and other clients. The file it self is well documented throughout. 
+
+Client_Thread.java: this thread handels all incoming requests/responses from 
+other clients. The file has been well documented throughout.
+
+Client_Data.java: this file handels the cilents user ID, name, address; as well
+as their friendships, chats and wall posts. Additionally, this file takes care 
+of file export and import.
+
+    data: this directory is created by the program and is used to output and 
+    retreive client data suche as friends, the clients wall posts, etc.
+
+server.py: this is the main server program. This program keeps track of where 
+clients can be reached. The server accecpts queries from clients and returns 
+the results. This file is also well documented throughout. 
+
+    packages: this directory holds addition files for supporting modules and classes
+
+    __init__.py: this file is necessary for the python directory struture 
+    to know that there are file to be executed within
+
+    server_thread.py: this thread handels individual clients of the server 
+    for server database queries. The file has been well documented throughout.
+
+    tcp_socket.py: this is the tcp socket class for initializing and reading 
+    and writing to a tcp socket. The file has been well documented throughout.
+
+running the program:
+====================
+both server.py has been made into executables, start the server first by:
+
+    ./server.py --auto
+
+Once the server has started, start as many client porgrams as you'd like. This 
+will work best if you import the directory "java-client" into Eclipse and use 
+the run configuration arguments:
+
+    userID firstName lastName IP port
+
+Registration with the server will happen automaticaly and a list of valid 
+commands will be displayed:
+
+    Have Fun! =D
+
+Items I want to fix and not completed:
+======================================
+I would have like to do more error checking on user input data. I do a little 
+bit, but not enough. Some incorrect inputs can still crash the program. In 
+addition, better user prompts and displaying of data would have been nice. 
+
+When a user signs off and then back on there is an issue; given more time I
+would have liked to of fixed this problem. 
+
+Both the activity and error logs were never created. 

@@ -1,0 +1,258 @@
+package pa03_osn;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Scanner;
+import java.util.Vector;
+import java.util.concurrent.locks.ReadWriteLock;
+
+public class Client_Thread implements Runnable{
+	
+	// private data members
+	Client_Data client_data;
+	ReadWriteLock dataLock;
+	Socket tcpSocket;
+	BufferedReader tcpIn;
+	PrintWriter tcpOut;
+	DatagramSocket udpSocket;
+	byte[] udpIn;
+	byte[] udpOut;
+	Boolean run;
+
+	// class constructor
+	Client_Thread(Client_Data client_data, ReadWriteLock dataLock, 
+				  Socket tcpSocket, BufferedReader tcpIn, PrintWriter tcpOut, 
+				  DatagramSocket udpSocket, byte[] udpIn, byte[] udpOut){
+		this.client_data = client_data;
+		this.dataLock = dataLock;
+		this.tcpSocket = tcpSocket;
+		this.tcpIn = tcpIn;
+		this.tcpOut = tcpOut;
+		this.udpSocket = udpSocket;
+		this.udpIn = udpIn;
+		this.udpOut = udpOut;
+		this.run = true;
+	}
+	
+	// entry point for thread
+	public void run(){
+
+		while(run){
+			
+			// setup receiving udp socket and clean up received data
+			DatagramPacket dp = new DatagramPacket(udpIn, udpIn.length);
+			try {
+				udpSocket.receive(dp);
+			} 
+			catch (IOException e) {
+				// e.printStackTrace();
+			}
+			Vector<String> command = cleanUserInput(new String(dp.getData()));
+			
+			// continue if valid command
+			if(command != null){
+			
+				// command is FRIEND
+				if(command.get(0).equalsIgnoreCase("FRIEND"))
+					try {
+						friend(command);
+					} catch (IOException e) {
+						// e.printStackTrace();
+					}
+				else if(command.get(0).equalsIgnoreCase("CONFIRM"))
+					try {
+						confirm(command);
+					} catch (IOException e) {
+						// e.printStackTrace();
+					}
+				else if(command.get(0).equalsIgnoreCase("REJECT"))
+					reject(command);
+			
+				// command is HI
+				else if(command.get(0).equalsIgnoreCase("HI"))
+					try {
+						hi(command);
+					} catch (IOException e) {
+						// e.printStackTrace();
+					}
+				else if(command.get(0).equalsIgnoreCase("BY"))
+					by(command);
+			
+				// command is CHAT
+				else if(command.get(0).equalsIgnoreCase("CHAT"))
+					chat(command);
+			
+				// command is DELIVERED
+				else if(command.get(0).equalsIgnoreCase("DELIVERED"))
+					delivered(command);
+			
+				// command is ENTRIES
+				else if(command.get(0).equalsIgnoreCase("ENTRIES"))
+					entries(command);
+			
+				// command is WALL
+				else
+					wall(command);
+			}
+		}
+	}
+
+	// getters and setters
+	public Boolean getRun(){
+		return run;
+	}
+
+	public void setRun(Boolean run){
+		this.run = run;
+	}
+	
+	// thread functions
+	private Vector<String> cleanUserInput(String string){
+		/*
+		 * identifies what the command is and returns the command and its data. 
+		 * If the command is bad, function returns null
+		 */
+		
+		// get the command and the list of words
+		Vector<String> strings = new Vector<String>();
+		String command = string.split(" ")[0].toUpperCase();
+		String[] words = string.split(" ");
+		
+		// if command is [FRIEND, CONFIRM, REJECT, HI, BY or DELIVERED userId]
+		if(command.equals("FRIEND") || command.equals("CONFIRM") || command.equals("REJECT") || 
+           command.equals("HI") || command.equals("BY") || command.equals("DELIVERED")){
+			strings.add(command);
+			strings.add(string.split(" ")[1]);
+			return strings;
+		}
+		
+		// if command is [CHAT userId message]
+		if(command.equals("CHAT")){
+			String userId = string.split(" ")[1];
+			String str = "";
+			for(String word : words){
+				if(word != command && word != userId)
+					str += word + " ";
+			}
+			strings.add(command);
+			strings.add(userId);
+			strings.add(str.trim());
+			return strings;
+		}
+		
+		// else return null
+		return null;
+	}
+
+	private void friend(Vector<String> command) throws IOException{
+		/*
+		 * prompts the user to CONFIRM or REJECT the friend request and 
+		 * sends the results back to the requester. If CONFIRM is chosen 
+		 * the new friend is added to friends.
+		 */
+		
+		// get user to confirm or reject
+		Scanner in = new Scanner(System.in); 
+	    System.out.println("CONFIRM or REJECT: " + command.get(1));
+	    String input = in.nextLine().toUpperCase();
+	    in.close();
+		
+		// if CONFIRM get address, add friend to list and send confirmation
+		if(input.equals("CONFIRM")){
+			tcpOut.println("SEARCH " + command.get(1));
+			String[] response = tcpIn.readLine().trim().split(" ");
+			client_data.setFriend(command.get(1) + " " + response[3] + " " + response[4]);
+			udpOut = ("CONFIRM " + client_data.getUserId()).getBytes();
+			udpSocket.send(new DatagramPacket(udpOut, udpOut.length, InetAddress.getByName(response[3]),
+	                												 Integer.parseInt(response[4])));
+		}
+	}
+
+	private void confirm(Vector<String> command) throws IOException{
+		/*
+		 * adds friend who sent friendship confirmation to the
+		 * friends vector and prints the confirmation of the
+		 * friend request for the user to review.
+		 */
+		
+		tcpOut.println("SEARCH " + command.get(1));
+		String[] response = tcpIn.readLine().trim().split(" ");
+		client_data.setFriend(command.get(1) + " " + response[3] + " " + response[4]);
+		System.out.println(command.get(1) + " confirmed friendship and has been added to your friends list.");
+	}
+
+	private void reject(Vector<String> command){
+		/*
+		 * prints the rejection of the friend request 
+		 * for the user to review.
+		 */
+		
+		System.out.println(command.get(1) + " rejected your friendship request.");
+	}
+
+	private void hi(Vector<String> command) throws IOException{
+		/*
+		 * updates a friends address information in the friends Vec
+		 * and prints a message to the screen telling the user their 
+		 * friend has come online.
+		 */
+		
+		tcpOut.println("SEARCH " + command.get(1));
+		String[] response = tcpIn.readLine().trim().split(" ");
+		client_data.setFriend(command.get(1) + " " + response[3] + " " + response[4]);
+		System.out.println(command.get(1) + " has come online.");
+	}
+
+	private void by(Vector<String> command){
+		/*
+		 * updates a friends address information in the friends Vec
+		 * and prints a message to the screen telling the user their 
+		 * friend has gone offline.
+		 */
+		
+		client_data.setFriend(command.get(1) + "0 0");
+		System.out.println(command.get(1) + " has gone off line.");
+	}
+
+	private void chat(Vector<String> command){
+		/*
+		 * outputs chat to screen for the user to view and sends
+		 * DELIVERED command back to sender.
+		 */
+		
+		// TODO 
+	}
+
+	private void delivered(Vector<String> command){
+		/*
+		 * prints delivery confirmation for user to review
+		 */
+		
+		// TODO
+	}
+
+	private void entries(Vector<String> command){
+		/*
+		 * sends all posts from the specified time to the requesting 
+		 * friend with command WALL. A message is printed to the screen
+		 * indicating to the user that a friend requested their posts.
+		 */
+		
+		// ENTRIES requirement was removed from programming assignment
+		System.out.println("ENTRIES requirement was removed from programming assignment.");
+	}
+
+	private void wall(Vector<String> command){
+		/*
+		 * outputs incoming wall post for the user to review.
+		 */
+		
+		// WALL requirement was removed from programming assignment
+		System.out.println("WALL requirement was removed from programming assignment.");
+	}
+}
